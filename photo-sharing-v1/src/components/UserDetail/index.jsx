@@ -17,7 +17,12 @@ function UserDetail(props) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`http://localhost:8081/api/user/${userId}`);
+        const token = localStorage.getItem('token');
+        const res = await fetch(`http://localhost:8081/api/user/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         const data = await res.json();
         setUser(data);
       } catch (error) {

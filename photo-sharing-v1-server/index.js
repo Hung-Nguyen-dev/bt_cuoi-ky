@@ -5,6 +5,7 @@ const dbConnect = require("./db/dbConnect");
 const UserRouter = require("./routes/UserRouter");
 const PhotoRouter = require("./routes/PhotoRouter");
 const AdminRouter = require("./routes/AdminRouter");
+const { verifyToken } = require("./middleware/auth");
 
 dbConnect();
 
@@ -15,9 +16,13 @@ app.use(cors({
 }));
 
 app.use(express.json());
-app.use("/api/user", UserRouter);
-app.use("/api/photo", PhotoRouter);
+
+// Public routes
 app.use("/api/admin", AdminRouter);
+
+// Protected routes
+app.use("/api/user", verifyToken, UserRouter);
+app.use("/api/photo", verifyToken, PhotoRouter);
 
 app.get("/", (request, response) => {
     response.send({ message: "Hello from photo-sharing app API!" });

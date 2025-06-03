@@ -14,15 +14,70 @@ import { Link } from "react-router-dom";
  * Define UserList, a React component of Project 4.
  */
 function UserList() {
-  const [users, setUsers] = useState();
-  useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch("http://localhost:8081/api/user/list")
-      const result = await res.json()
-      setUsers(result)
+  const [users, setUsers] = useState([]);
+  const [error, setError] = useState(null);
+
+  const fetchUsers = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setUsers([]);
+        return;
+      }
+
+      const res = await fetch("http://localhost:8081/api/user/list", {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          setUsers([]);
+          return;
+        }
+        throw new Error('Failed to fetch users');
+      }
+
+      const result = await res.json();
+      setUsers(Array.isArray(result) ? result : []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setError('Failed to load users');
+      setUsers([]);
     }
-    fetchData()
-  }, [])
+  };
+
+  // Fetch users when component mounts
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // Set up an interval to check for token changes
+  useEffect(() => {
+    const checkToken = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        fetchUsers();
+      } else {
+        setUsers([]);
+      }
+    };
+
+    // Check immediately
+    checkToken();
+
+    // Set up interval to check every second
+    const interval = setInterval(checkToken, 1000);
+
+    // Cleanup interval on unmount
+    return () => clearInterval(interval);
+  }, []);
+
+  if (error) {
+    return <Typography color="error">{error}</Typography>;
+  }
 
   return (
     <div>
@@ -33,7 +88,7 @@ function UserList() {
         display your users like so:
       </Typography> */}
       <List component="nav">
-        {users ? (
+        {users.length > 0 ? (
           users.map((item) => (
             <React.Fragment key={item._id}>
               <ListItem component={Link} to={`/users/${item._id}`}>
@@ -43,7 +98,7 @@ function UserList() {
             </React.Fragment>
           ))
         ) : (
-          <Typography>Loading...</Typography>
+          <Typography>No users available</Typography>
         )}
       </List>
       {/* <Typography variant="body1">

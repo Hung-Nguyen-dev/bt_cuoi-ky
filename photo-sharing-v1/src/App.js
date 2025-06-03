@@ -10,9 +10,12 @@ import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
 import { useState } from 'react';
 import LoginRegister from './components/LoginRegister';
+
 const App = (props) => {
   const [topBar, setTopBar] = useState("");
   const [advanced, setAdvanced] = useState(false)
+  const [userLogin, setUserLogin] = useState("Please login");
+
   return (
     <Router>
       <div>
@@ -23,6 +26,8 @@ const App = (props) => {
               setTopBar={setTopBar}
               advanced={advanced}
               setAdvanced={setAdvanced}
+              userLogin={userLogin}
+              setUserLogin={setUserLogin}
             />
           </Grid>
           <div className="main-topbar-buffer" />
@@ -34,7 +39,7 @@ const App = (props) => {
           <Grid item sm={9}>
             <Paper className="main-grid-item">
               <Routes>
-                <Route path="/" element={<LoginRegister />} />
+                <Route path="/" element={<LoginRegister setUserLogin={setUserLogin} />} />
                 <Route
                   path="/users/:userId"
                   element={<UserDetail setTopBar={setTopBar} />}

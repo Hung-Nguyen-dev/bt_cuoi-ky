@@ -1,13 +1,14 @@
-
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
-function LoginRegister() {
+function LoginRegister(props) {
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm();
 
+    const navigate = useNavigate();
     const submit = async (data) => {
         try {
             const req = await fetch("http://localhost:8081/api/admin/login", {
@@ -20,6 +21,11 @@ function LoginRegister() {
 
             if (req.ok) {
                 const resData = await req.json();
+                // Store token in localStorage
+                localStorage.setItem("token", resData.token);
+                // Update UI state
+                props.setUserLogin("Hi " + resData.first_name);
+                navigate("/users");
                 console.log("Login success:", resData);
             } else {
                 console.error("Login failed:", req.status);
