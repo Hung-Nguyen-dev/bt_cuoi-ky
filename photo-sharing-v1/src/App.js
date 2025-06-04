@@ -2,7 +2,7 @@ import './App.css';
 
 import React from "react";
 import { Grid, Paper } from "@mui/material";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import TopBar from "./components/TopBar";
 import UserDetail from "./components/UserDetail";
@@ -10,6 +10,7 @@ import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
 import { useState } from 'react';
 import LoginRegister from './components/LoginRegister';
+import Register from './components/Register'
 
 const App = (props) => {
   const [topBar, setTopBar] = useState("");
@@ -40,6 +41,7 @@ const App = (props) => {
             <Paper className="main-grid-item">
               <Routes>
                 <Route path="/" element={<LoginRegister setUserLogin={setUserLogin} />} />
+                <Route path="/register" element={<Register />} />
                 <Route
                   path="/users/:userId"
                   element={<UserDetail setTopBar={setTopBar} />}

@@ -21,7 +21,7 @@ app.use(express.json());
 app.use("/api/admin", AdminRouter);
 
 // Protected routes
-app.use("/api/user", verifyToken, UserRouter);
+app.use("/api/user", UserRouter);
 app.use("/api/photo", verifyToken, PhotoRouter);
 
 app.get("/", (request, response) => {

@@ -5,16 +5,16 @@ const AdminRouter = express.Router();
 
 AdminRouter.post("/login", async (req, res) => {
     try {
-        const { login_name } = req.body;
+        const { login_name,password } = req.body;
         
         if (!login_name) {
             return res.status(400).json({ error: "Login name is required" });
         }
 
-        const user = await User.findOne({ login_name });
+        const user = await User.findOne({ login_name, password});
         
         if (!user) {
-            return res.status(400).json({ error: "Invalid login name" });
+            return res.status(400).json({ error: "Login failed" });
         }
 
         const token = generateToken(user);

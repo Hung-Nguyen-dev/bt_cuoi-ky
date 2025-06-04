@@ -2,8 +2,9 @@ const express = require("express");
 const User = require("../db/userModel");
 const mongoose = require("mongoose");
 const UserRouter = express.Router();
+const { verifyToken } = require("../middleware/auth")
 
-UserRouter.get("/list", async (req, res) => {
+UserRouter.get("/list", verifyToken, async (req, res) => {
     try {
         const users = await User.find({}, "_id first_name last_name");
         // Ensure we always return an array, even if empty
@@ -17,7 +18,7 @@ UserRouter.get("/list", async (req, res) => {
     }
 });
 
-UserRouter.get("/:id", async (req, res) => {
+UserRouter.get("/:id", verifyToken, async (req, res) => {
     const id = req.params.id;
     try {
         const user = await User.findOne({ _id: id });
@@ -31,34 +32,31 @@ UserRouter.get("/:id", async (req, res) => {
     }
 });
 
-UserRouter.post("/login", async (req, res) => {
+UserRouter.post("/", async (req, res) => {
     try {
-        const { login_name } = req.body;
-        
-        if (!login_name) {
-            return res.status(400).json({ error: "Login name is required" });
+        const newUser = req.body;
+        const user = await User.findOne({ login_name: newUser.login_name })
+        if (user) {
+            res.status(400).json({ error: "Register failed" })
+        } else {
+            const createNewUser = await User.create({
+                _id: new mongoose.Types.ObjectId().toString(),
+                first_name: newUser.first_name,
+                last_name: newUser.last_name,
+                location: newUser.location,
+                description: newUser.description,
+                occupation: newUser.occupation,
+                login_name: newUser.login_name,
+                password: newUser.password
+            });
+
+            res.status(200).json({ message: "register success" })
         }
 
-        const user = await User.findOne({ login_name });
-        
-        if (!user) {
-            return res.status(400).json({ error: "Invalid login name" });
-        }
-
-        // In a real application, you would also verify the password here
-
-        const token = generateToken(user);
-        
-        res.status(200).json({
-            _id: user._id,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            token
-        });
-    } catch (error) {
-        console.error("Login error:", error);
-        res.status(400).json({ error: "Login failed" });
     }
-});
+    catch (error) {
+        res.status(400).json({ error: "Register failed" })
+    }
 
+})
 module.exports = UserRouter;

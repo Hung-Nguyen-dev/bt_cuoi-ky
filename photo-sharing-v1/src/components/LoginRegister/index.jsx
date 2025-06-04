@@ -21,9 +21,9 @@ function LoginRegister(props) {
 
             if (req.ok) {
                 const resData = await req.json();
-                // Store token in localStorage
+
                 localStorage.setItem("token", resData.token);
-                // Update UI state
+
                 props.setUserLogin("Hi " + resData.first_name);
                 navigate("/users");
                 console.log("Login success:", resData);
@@ -34,13 +34,22 @@ function LoginRegister(props) {
             console.error("Fetch error:", error);
         }
     };
+    const handleRegister = () => {
+        navigate("/register");
+    }
     return (
         <div>
             <form onSubmit={handleSubmit(submit)}>
-                Login_name: <input type="text" {...register('login_name', { required: true })} />
+                <div>
+                    <label>Login name:</label> <input type="text" {...register('login_name', { required: true })} />
+                    {errors.login_name && <p>required login_name</p>}
+                    <br />
+                    <label>Password:</label><input type="password" {...register('password', { required: true })} />
+                    {errors.password && <p>require password</p>}
+                </div>
                 <button>Login</button>
-                {errors.login_name && <p>required login_name</p>}
             </form>
+            <button onClick={() => { handleRegister() }}>Register</button>
         </div>
     )
 }
